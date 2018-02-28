@@ -1,6 +1,8 @@
 FROM openjdk:8-alpine
 
 ENV SONAR_VERSION=6.7.1 \
+    SONAR_SCALA_VERSION=0.0.3 \
+    SONAR_SCAPEGOAT_VERSION=1.3.0 \
     SONARQUBE_HOME=/opt/sonarqube \
     # Database configuration
     # Defaults to using H2
@@ -29,9 +31,13 @@ RUN set -x \
     && cd /opt \
     && wget -O sonarqube.zip --no-verbose https://sonarsource.bintray.com/Distribution/sonarqube/sonarqube-$SONAR_VERSION.zip \
     && wget -O sonarqube.zip.asc --no-verbose https://sonarsource.bintray.com/Distribution/sonarqube/sonarqube-$SONAR_VERSION.zip.asc \
+    && wget https://github.com/Sagacify/sonar-scala/releases/download/v$SONAR_SCALA_VERSION/sonar-scala-plugin-$SONAR_SCALA_VERSION.jar \
+    && wget https://github.com/arthepsy/sonar-scala-extra/releases/download/v$SONAR_SCAPEGOAT_VERSION/sonar-scapegoat-plugin-$SONAR_SCAPEGOAT_VERSION.jar \
     && gpg --batch --verify sonarqube.zip.asc sonarqube.zip \
     && unzip sonarqube.zip \
     && mv sonarqube-$SONAR_VERSION sonarqube \
+    && mv sonar-scala-plugin-$SONAR_SCALA_VERSION.jar /opt/sonarqube/extensions/plugins \
+    && mv sonar-scapegoat-plugin-$SONAR_SCAPEGOAT_VERSION.jar /opt/sonarqube/extensions/plugins \
     && chown -R sonarqube:sonarqube sonarqube \
     && rm sonarqube.zip* \
     && rm -rf $SONARQUBE_HOME/bin/*
