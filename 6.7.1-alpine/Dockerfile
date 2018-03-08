@@ -1,8 +1,6 @@
 FROM openjdk:8-alpine
 
-MAINTAINER David Gageot <david.gageot@sonarsource.com>
-
-ENV SONAR_VERSION=6.4 \
+ENV SONAR_VERSION=6.7.1 \
     SONAR_SCALA_VERSION=0.0.3 \
     SONAR_SCAPEGOAT_VERSION=1.3.0 \
     SONARQUBE_HOME=/opt/sonarqube \
@@ -15,9 +13,13 @@ ENV SONAR_VERSION=6.4 \
 # Http port
 EXPOSE 9000
 
+RUN addgroup -S sonarqube && adduser -S -G sonarqube sonarqube
+
 RUN set -x \
     && apk add --no-cache gnupg unzip \
     && apk add --no-cache libressl wget \
+    && apk add --no-cache su-exec \
+    && apk add --no-cache bash \
 
     # pub   2048R/D26468DE 2015-05-25
     #       Key fingerprint = F118 2E81 C792 9289 21DB  CAB4 CFCA 4A29 D264 68DE
@@ -36,6 +38,7 @@ RUN set -x \
     && mv sonarqube-$SONAR_VERSION sonarqube \
     && mv sonar-scala-plugin-$SONAR_SCALA_VERSION.jar /opt/sonarqube/extensions/plugins \
     && mv sonar-scapegoat-plugin-$SONAR_SCAPEGOAT_VERSION.jar /opt/sonarqube/extensions/plugins \
+    && chown -R sonarqube:sonarqube sonarqube \
     && rm sonarqube.zip* \
     && rm -rf $SONARQUBE_HOME/bin/*
 
